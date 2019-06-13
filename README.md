@@ -1,1 +1,1 @@
-devops  repository
+scripts directory
