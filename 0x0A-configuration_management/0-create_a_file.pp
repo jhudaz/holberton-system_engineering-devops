@@ -1,3 +1,4 @@
+# Using Puppet, create a file in /tmp.
 file {'create_a_file':
 content =>'I love Puppet',
 path    =>'/tmp/holberton',
