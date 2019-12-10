@@ -1,0 +1,1 @@
+ssh ubuntu@35.237.165.127 -i ~/.ssh/holberton
