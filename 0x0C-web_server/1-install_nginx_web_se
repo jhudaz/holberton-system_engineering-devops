@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#script that configures a new Ubuntu machine to respect above requirements
+#install ngnix
+sudo apt-get update 
+sudo apt-get -y install nginx
+rm \*.html
+touch index.html
+chmod 777 index.html
+echo "Holberton School" > index.html
+sudo service nginx restart
