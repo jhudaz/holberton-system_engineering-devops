@@ -2,6 +2,6 @@
 # 404
 apt-get update
 apt-get -y install nginx
-echo "Ceci n'est pas une page" > /var/www/html/holberton_404.html
-sed -ie "s/^server {$/server {\n\terror_page 404 \/holberton_404.html;\n\t\tlocation = \/holberton_404.html {\n\t\troot \/var\/www\/html;\n\t\tinternal;\n\t}/g" /etc/nginx/sites-available/default
-service nginx restart
+echo "Ceci n'est pas une page" > /usr/share/nginx/html/custom_404.html
+sed -ie "s/^\tserver_name _;$/\tserver {\n\terror_page 404 \/custom_404.html;\n\t\tlocation = \/custom_404.html {\n\t\troot \/usr\/share\/nginx\/html;\n\t\tinternal;\n\t}/g" /usr/share/nginx/html/custom_404.html
+service nginx start
