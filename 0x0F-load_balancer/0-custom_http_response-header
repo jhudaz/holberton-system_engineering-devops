@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+#make another server equal to the first
+
+nginxConf='/etc/nginx/nginx.conf'
+
+sudo apt-get -y update
+sudo apt-get install -y nginx
+sudo ufw allow 'Nginx HTTP'
+echo "Holberton School" | sudo tee /var/www/html/index.nginx-debian.html
+sudo sed -i '/sendfile on;/i \\tadd_header X-Served-By $hostname;' $nginxConf
+sudo service nginx restart
