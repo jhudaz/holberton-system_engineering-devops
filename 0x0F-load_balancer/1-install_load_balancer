@@ -12,8 +12,8 @@ sudo apt-get install haproxy=1.8.\* -y
 
 echo -e '\nbackend holberton_backend
         balance roundrobin
-        server 912-web-01 35.237.165.127:80 check
-        server 912-web-02 34.74.125.245:80 check' | sudo tee -a $HAProxy_conf_file
+        server 912-web-01 35.196.83.177:80 check
+        server 912-web-02 34.74.111.90:80 check' | sudo tee -a $HAProxy_conf_file
 
 echo -e '\nfrontend default_holberton
         bind *:80
