@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#Install and configure HAproxy on your lb-01 server.
+
+#config file
+HAProxy_conf_file='/etc/haproxy/haproxy.cfg'
+
+sudo apt-get install software-properties-common -y
+
+sudo add-apt-repository ppa:vbernat/haproxy-1.8 -y
+sudo apt-get update -y
+sudo apt-get install haproxy=1.8.\* -y
+
+echo -e '\nbackend holberton_backend
+        balance roundrobin
+        server 912-web-01 35.237.165.127:80 check
+        server 912-web-02 34.74.125.245:80 check' | sudo tee -a $HAProxy_conf_file
+
+echo -e '\nfrontend default_holberton
+        bind *:80
+        default_backend holberton_backend' | sudo tee -a $HAProxy_conf_file
+
+echo -e '\nENABLED=1' | sudo tee -a /etc/default/haproxy
+
+sudo service haproxy restart
+
