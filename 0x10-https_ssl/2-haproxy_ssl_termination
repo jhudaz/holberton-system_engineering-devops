@@ -55,5 +55,3 @@ backend holberton_backend
         balance roundrobin
         server 912-web-01 35.196.83.177:80 check
         server 912-web-02 34.74.111.90:80 check
-
-
