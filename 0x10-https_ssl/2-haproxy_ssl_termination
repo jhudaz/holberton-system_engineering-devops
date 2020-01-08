@@ -42,7 +42,7 @@ frontend www-http
   default_backend web-backend
 
 frontend www-https
-  bind *:443 ssl crt /etc/haproxy/ssl/www.pem
+  bind *:443 ssl crt /etc/haproxy/ssl/www.jimmyscript.tech.pem
   reqadd X-Forwarded-Proto:\ https
   default_backend web-backend
 
@@ -55,3 +55,4 @@ backend holberton_backend
         balance roundrobin
         server 912-web-01 35.196.83.177:80 check
         server 912-web-02 34.74.111.90:80 check
+
