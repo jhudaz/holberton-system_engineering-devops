@@ -1,36 +1,59 @@
-#!/usr/bin/env bash
-#SSL certificate using certbot
+global
+	log /dev/log	local0
+	log /dev/log	local1 notice
+	chroot /var/lib/haproxy
+	stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+	stats timeout 30s
+	user haproxy
+	group haproxy
+	daemon
 
-#stop haproxy service
-sudo service haproxy stop
+	# Default SSL material locations
+	ca-base /etc/ssl/certs
+	crt-base /etc/ssl/private
 
-#install certbot
-sudo add-apt-repository ppa:certbot/certbot
-sudo apt-get update
-sudo apt-get install certbot
+	# Default ciphers to use on SSL-enabled listening sockets.
+	# For more information, see ciphers(1SSL). This list is from:
+	#  https://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/
+	# An alternative list with additional directives can be obtained from
+	#  https://mozilla.github.io/server-side-tls/ssl-config-generator/?server=haproxy
+	ssl-default-bind-ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS
+	ssl-default-bind-options no-sslv3
 
-#ssl
-sudo mkdir -p /etc/haproxy/ssl
-sudo chmod -R go-rwx /etc/haproxy/ssl
-certbot certonly --standalone
+defaults
+	log	global
+	mode	http
+	option	httplog
+	option	dontlognull
+        timeout connect 5000
+        timeout client  50000
+        timeout server  50000
+	errorfile 400 /etc/haproxy/errors/400.http
+	errorfile 403 /etc/haproxy/errors/403.http
+	errorfile 408 /etc/haproxy/errors/408.http
+	errorfile 500 /etc/haproxy/errors/500.http
+	errorfile 502 /etc/haproxy/errors/502.http
+	errorfile 503 /etc/haproxy/errors/503.http
+	errorfile 504 /etc/haproxy/errors/504.http
 
-#install haproxy
-DOMAIN='jimmyscript.tech' 
-sudo -E bash -c 'cat /etc/letsencrypt/live/$DOMAIN/fullchain.pem /etc/letsencrypt/live/$DOMAIN/privkey.pem > /etc/haproxy/ssl/$DOMAIN.pem'
+frontend www-http
+  bind *:80
+  reqadd X-Forwarded-Proto:\ http
+  default_backend web-backend
 
-echo "frontend www-http" | tee -a /etc/haproxy/haproxy.cfg
-echo "  bind *:80" | tee -a /etc/haproxy/haproxy.cfg
-echo "  reqadd X-Forwarded-Proto:\ http" | tee -a /etc/haproxy/haproxy.cfg
-echo "  default_backend web-backend" | tee -a /etc/haproxy/haproxy.cfg
+frontend www-https
+  bind *:443 ssl crt /etc/haproxy/ssl/www.pem
+  reqadd X-Forwarded-Proto:\ https
+  default_backend web-backend
 
-echo "frontend www-https" | tee -a /etc/haproxy/haproxy.cfg
-echo "  bind *:443 ssl crt /etc/haproxy/ssl/jimmyscript.tech.pem" | tee -a /etc/haproxy/haproxy.cfg
-echo "  reqadd X-Forwarded-Proto:\ https" | tee -a /etc/haproxy/haproxy.cfg
-echo "  default_backend web-backend" | tee -a /etc/haproxy/haproxy.cfg
+backend web-backend
+  redirect scheme https if !{ ssl_fc }
+  server 912-web-01 35.196.83.177:80 check
+  server 912-web-02 34.74.111.90:80 check
 
-echo "backend web-backend" | tee -a /etc/haproxy/haproxy.cfg
-echo "  redirect scheme https if !{ ssl_fc }" | tee -a /etc/haproxy/haproxy.cfg
-echo "  server 912-web-01 35.196.83.177:80 check" | tee -a /etc/haproxy/haproxy.cfg
-echo "  server 912-web-02 34.74.111.90:80 check" | tee -a /etc/haproxy/haproxy.cfg
+backend holberton_backend
+        balance roundrobin
+        server 912-web-01 35.196.83.177:80 check
+        server 912-web-02 34.74.111.90:80 check
 
-sudo service haproxy restart
+
