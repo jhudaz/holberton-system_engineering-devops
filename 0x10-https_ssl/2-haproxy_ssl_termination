@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#SSL certificate using certbot
+
+#stop haproxy service
+sudo service haproxy stop
+
+#install certbot
+sudo add-apt-repository ppa:certbot/certbot
+sudo apt-get update
+sudo apt-get install certbot
+
+#ssl
+sudo mkdir -p /etc/haproxy/ssl
+sudo chmod -R go-rwx /etc/haproxy/ssl
+certbot certonly --standalone
+
+#install haproxy
+DOMAIN='jimmyscript.tech' 
+sudo -E bash -c 'cat /etc/letsencrypt/live/$DOMAIN/fullchain.pem /etc/letsencrypt/live/$DOMAIN/privkey.pem > /etc/haproxy/ssl/$DOMAIN.pem'
+
+echo "frontend www-http" | tee -a /etc/haproxy/haproxy.cfg
+echo "  bind *:80" | tee -a /etc/haproxy/haproxy.cfg
+echo "  reqadd X-Forwarded-Proto:\ http" | tee -a /etc/haproxy/haproxy.cfg
+echo "  default_backend web-backend" | tee -a /etc/haproxy/haproxy.cfg
+
+echo "frontend www-https" | tee -a /etc/haproxy/haproxy.cfg
+echo "  bind *:443 ssl crt /etc/haproxy/ssl/jimmyscript.tech.pem" | tee -a /etc/haproxy/haproxy.cfg
+echo "  reqadd X-Forwarded-Proto:\ https" | tee -a /etc/haproxy/haproxy.cfg
+echo "  default_backend web-backend" | tee -a /etc/haproxy/haproxy.cfg
+
+echo "backend web-backend" | tee -a /etc/haproxy/haproxy.cfg
+echo "  redirect scheme https if !{ ssl_fc }" | tee -a /etc/haproxy/haproxy.cfg
+echo "  server 912-web-01 35.196.83.177:80 check" | tee -a /etc/haproxy/haproxy.cfg
+echo "  server 912-web-02 34.74.111.90:80 check" | tee -a /etc/haproxy/haproxy.cfg
+
+sudo service haproxy restart
