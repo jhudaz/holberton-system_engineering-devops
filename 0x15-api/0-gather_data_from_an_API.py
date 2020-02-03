@@ -6,13 +6,11 @@ from sys import argv
 
 if __name__ == "__main__":
 
-    user_id = {"id": argv[1]}
-    user_id2 = {"userId": argv[1]}
-
     user_req = requests.get(
-        "https://jsonplaceholder.typicode.com/users", params=user_id)
+        "https://jsonplaceholder.typicode.com/users", params={"id": argv[1]})
     task_list = requests.get(
-        "https://jsonplaceholder.typicode.com/todos", params=user_id2)
+        "https://jsonplaceholder.typicode.com/todos",
+        params={"userId": argv[1]})
 
     name = user_req.json()[0].get("name")
     completed = [task for task in task_list.json() if task['completed']]
@@ -20,4 +18,4 @@ if __name__ == "__main__":
     text = "Employee {} is done with tasks({}/{}):"
     print(text.format(name, len(completed), total))
     for task in completed:
-        print("\t{}".format(task['title']))
+        print("\t {}".format(task['title']))
