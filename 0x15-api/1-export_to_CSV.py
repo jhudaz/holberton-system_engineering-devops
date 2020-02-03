@@ -15,9 +15,12 @@ if __name__ == "__main__":
     user_id = argv[1]
     username = user_req.json()[0].get('username')
 
-    with open("{}.csv".format(argv[1]), 'w', newline='') as file:
+    with open("{}.csv".format(argv[1]), 'w') as file:
         writer = csv.writer(file)
         for row in task_list.json():
             state = row.get("completed")
             title = row.get("title")
-            writer.writerow([user_id, username, state, title])
+            writer.writerow(["{}".format(user_id),
+                             "{}".format(username),
+                             "{}".format(state),
+                             "{}".format(title)])
