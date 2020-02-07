@@ -3,7 +3,7 @@ from requests import get
 
 
 def recurse(subreddit, hot_list=[], after="null"):
-    url = 'https://api.reddit.com/r/{}?sort=hot&limit=100&after={}'.format(
+    url = 'https://api.reddit.com/r/{}.json?limit=100&after={}'.format(
         subreddit, after)
     user_agent = "application/x-www-form-urlencoded"
     response = get(url, headers={'User-Agent': user_agent})
@@ -16,6 +16,7 @@ def recurse(subreddit, hot_list=[], after="null"):
     if not after:
         return hot_list
     else:
+        print(after)
         articles = data.get('children')
         hot_list = hot_list + articles
         return recurse(subreddit, hot_list, after)
