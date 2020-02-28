@@ -1,7 +1,9 @@
 #fix apache bench
 
-exec { "fix":
+exec { 'fix':
   command => '/bin/echo ULIMIT="-n 32768" | sudo tee /etc/default/nginx',
-  command => 'service nginx restart'
+}
+exec {'nginx':
+  command => '/usr/bin/service nginx restart'
 }
 
